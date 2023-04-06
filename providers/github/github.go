@@ -8,6 +8,8 @@ import (
 	"github.com/xiaoyan648/goth"
 )
 
+var _ goth.Provider = (*Provider)(nil)
+
 type Provider struct {
 	ClientId     string
 	ClientSecret string //GitHub里所获取

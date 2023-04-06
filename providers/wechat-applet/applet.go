@@ -9,6 +9,8 @@ import (
 	"github.com/xiaoyan648/goth"
 )
 
+var _ goth.Provider = (*Provider)(nil)
+
 const (
 	code2sessionURL = "https://api.weixin.qq.com/sns/jscode2session?appid=%s&secret=%s&js_code=%s&grant_type=authorization_code"
 )
@@ -31,7 +33,7 @@ type AccessToken struct {
 
 // 必填 appid, secret.
 // 选填 cli， 不填默认为 DefaultClient.
-func NewProvider(appid, secret string, cli *http.Client) *Provider {
+func NewProvider(appid, secret string, cli *http.Client) *Provider { //
 	return &Provider{
 		AppID:     appid,
 		AppSecret: secret,
@@ -39,7 +41,12 @@ func NewProvider(appid, secret string, cli *http.Client) *Provider {
 	}
 }
 
-func (p *Provider) GetToken(code string) (*goth.Token, error) {
+// Name.
+func (e *Provider) Name() string {
+	return "wechatapplet"
+}
+
+func (p *Provider) Token(code string) (*goth.Token, error) {
 	url := fmt.Sprintf(code2sessionURL, p.AppID, p.AppSecret, code)
 	client := http.DefaultClient
 	if p.cli != nil {
@@ -72,6 +79,6 @@ func (p *Provider) GetToken(code string) (*goth.Token, error) {
 	}, nil
 }
 
-func (e *Provider) GetUserInfo(access_token string, openid string) (*goth.User, error) {
-	return nil, nil
+func (e *Provider) GetUserInfo(*goth.Token) (*goth.User, error) {
+	return &goth.User{}, nil
 }

@@ -9,6 +9,8 @@ import (
 	"github.com/xiaoyan648/goth"
 )
 
+var _ goth.Provider = (*Provider)(nil)
+
 type Provider struct {
 	Appid  string
 	Appkey string
@@ -52,8 +54,13 @@ type UserInfo struct {
 	Errmsg  string `json:"errmsg"`
 }
 
-//获取token
-func (e *Provider) GetToken(code string) (*goth.Token, error) {
+// Name.
+func (e *Provider) Name() string {
+	return "wechat"
+}
+
+// 获取token
+func (e *Provider) Token(code string) (*goth.Token, error) {
 	url := "https://api.weixin.qq.com/sns/oauth2/access_token?appid=" + e.Appid + "&secret=" + e.Appkey + "&code=" + code + "&grant_type=authorization_code"
 	reqest, err := http.NewRequest(http.MethodPost, url, nil)
 	if err != nil {
@@ -91,8 +98,8 @@ func (e *Provider) GetToken(code string) (*goth.Token, error) {
 }
 
 //获取第三方用户信息
-func (e *Provider) GetUserInfo(access_token string, openid string) (*goth.User, error) {
-	url := "https://api.weixin.qq.com/sns/userinfo?access_token=" + access_token + "&openid=" + openid
+func (e *Provider) GetUserInfo(token *goth.Token) (*goth.User, error) {
+	url := "https://api.weixin.qq.com/sns/userinfo?access_token=" + token.AccessToken + "&openid=" + token.UID
 	reqest, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
 		return nil, err
